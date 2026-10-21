@@ -1,0 +1,369 @@
+{
+ "provenance": {
+  "source": "Formosa (BIP-450) reference implementation, Python",
+  "repo": "yuri-svb/formosa",
+  "commit": "2b8fe8f04559045c636d0c4e589380c632849ead",
+  "functions": "Mnemonic.to_mnemonic / Mnemonic.to_entropy, both byte-identical to master",
+  "theme_blobs": {
+   "global": "534c3ecbbea547c282324f6f0de1fdc23b642788",
+   "medieval_fantasy": "94bf4e0e1b80352ee9f4a58dc2ac1bd166d47304"
+  },
+  "note": "Independent of the JavaScript under test. Inputs are fixed byte patterns, not random."
+ },
+ "themes": {
+  "global": [
+   {
+    "bits": 128,
+    "pattern": "zeros",
+    "entropy": "00000000000000000000000000000000",
+    "words": 24,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 beach"
+   },
+   {
+    "bits": 128,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffff",
+    "words": 24,
+    "phrase": "za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 palace"
+   },
+   {
+    "bits": 128,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f",
+    "words": 24,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor at_austria ac_acupuncturist_actor 32 castle at_austria ac_acupuncturist_actor fr_france bi_bitcoiner_biologist 0 taxi ch_switzerland as_astronaut_assistant ch_switzerland fa_farmer 2 sauna hk_hong_kong bi_bitcoiner_biologist eg_egypt sw_swimmer 7 spa"
+   },
+   {
+    "bits": 128,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 24,
+    "phrase": "nz_new_zealand me_mechanic pe_peru fa_farmer 37 dressing_room gb_united_kingdom cy_cyclist gl_greenland pi_pilot_pirate 10 pool nz_new_zealand fa_farmer pk_pakistan fa_farmer 21 forest_house fr_france pi_pilot_pirate id_indonesia nu_nurse 42 office"
+   },
+   {
+    "bits": 128,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0",
+    "words": 24,
+    "phrase": "za_south_africa yo_yogi va_vatican yo_yogi 31 school va_vatican yo_yogi pe_peru sw_swimmer 63 beach th_thailand vi_violinist_violoncellist th_thailand pi_pilot_pirate 61 cinema ni_nigeria sw_swimmer pt_portugal bi_bitcoiner_biologist 56 airport"
+   },
+   {
+    "bits": 160,
+    "pattern": "zeros",
+    "entropy": "0000000000000000000000000000000000000000",
+    "words": 30,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 spa"
+   },
+   {
+    "bits": 160,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffffffffffff",
+    "words": 30,
+    "phrase": "za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 mansion"
+   },
+   {
+    "bits": 160,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f10111213",
+    "words": 30,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor at_austria ac_acupuncturist_actor 32 castle at_austria ac_acupuncturist_actor fr_france bi_bitcoiner_biologist 0 taxi ch_switzerland as_astronaut_assistant ch_switzerland fa_farmer 2 sauna hk_hong_kong bi_bitcoiner_biologist eg_egypt sw_swimmer 7 laboratory_laundry ae_united_arab_emirates do_dog_walker_doctor kz_kazakhstan do_dog_walker_doctor 19 taxi"
+   },
+   {
+    "bits": 160,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 30,
+    "phrase": "nz_new_zealand me_mechanic pe_peru fa_farmer 37 dressing_room gb_united_kingdom cy_cyclist gl_greenland pi_pilot_pirate 10 pool nz_new_zealand fa_farmer pk_pakistan fa_farmer 21 forest_house fr_france pi_pilot_pirate id_indonesia nu_nurse 42 secret_chamber no_norway fa_farmer sg_singapore dr_driver 21 palace"
+   },
+   {
+    "bits": 160,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedec",
+    "words": 30,
+    "phrase": "za_south_africa yo_yogi va_vatican yo_yogi 31 school va_vatican yo_yogi pe_peru sw_swimmer 63 beach th_thailand vi_violinist_violoncellist th_thailand pi_pilot_pirate 61 cinema ni_nigeria sw_swimmer pt_portugal bi_bitcoiner_biologist 56 garden za_south_africa ps_psychologist iq_iraq ps_psychologist 44 boat"
+   },
+   {
+    "bits": 192,
+    "pattern": "zeros",
+    "entropy": "000000000000000000000000000000000000000000000000",
+    "words": 36,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 1 cinema"
+   },
+   {
+    "bits": 192,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffffffffffffffffffff",
+    "words": 36,
+    "phrase": "za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 62 laboratory_laundry"
+   },
+   {
+    "bits": 192,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f1011121314151617",
+    "words": 36,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor at_austria ac_acupuncturist_actor 32 castle at_austria ac_acupuncturist_actor fr_france bi_bitcoiner_biologist 0 taxi ch_switzerland as_astronaut_assistant ch_switzerland fa_farmer 2 sauna hk_hong_kong bi_bitcoiner_biologist eg_egypt sw_swimmer 7 laboratory_laundry ae_united_arab_emirates do_dog_walker_doctor kz_kazakhstan do_dog_walker_doctor 19 bar_ballet_school jp_japan pi_pilot_pirate be_belgium li_lifeguard_librarian_live_streamer 46 cinema"
+   },
+   {
+    "bits": 192,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 36,
+    "phrase": "nz_new_zealand me_mechanic pe_peru fa_farmer 37 dressing_room gb_united_kingdom cy_cyclist gl_greenland pi_pilot_pirate 10 pool nz_new_zealand fa_farmer pk_pakistan fa_farmer 21 forest_house fr_france pi_pilot_pirate id_indonesia nu_nurse 42 secret_chamber no_norway fa_farmer sg_singapore dr_driver 21 palace et_ethiopia pi_pilot_pirate nz_new_zealand me_mechanic 43 castle"
+   },
+   {
+    "bits": 192,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8",
+    "words": 36,
+    "phrase": "za_south_africa yo_yogi va_vatican yo_yogi 31 school va_vatican yo_yogi pe_peru sw_swimmer 63 beach th_thailand vi_violinist_violoncellist th_thailand pi_pilot_pirate 61 cinema ni_nigeria sw_swimmer pt_portugal bi_bitcoiner_biologist 56 garden za_south_africa ps_psychologist iq_iraq ps_psychologist 44 workshop it_italy fa_farmer tw_taiwan la_lawyer_land_lord 16 yacht_yard"
+   },
+   {
+    "bits": 224,
+    "pattern": "zeros",
+    "entropy": "00000000000000000000000000000000000000000000000000000000",
+    "words": 42,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 workshop"
+   },
+   {
+    "bits": 224,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "words": 42,
+    "phrase": "za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 60 school"
+   },
+   {
+    "bits": 224,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b",
+    "words": 42,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor at_austria ac_acupuncturist_actor 32 castle at_austria ac_acupuncturist_actor fr_france bi_bitcoiner_biologist 0 taxi ch_switzerland as_astronaut_assistant ch_switzerland fa_farmer 2 sauna hk_hong_kong bi_bitcoiner_biologist eg_egypt sw_swimmer 7 laboratory_laundry ae_united_arab_emirates do_dog_walker_doctor kz_kazakhstan do_dog_walker_doctor 19 bar_ballet_school jp_japan pi_pilot_pirate be_belgium li_lifeguard_librarian_live_streamer 46 castle ar_argentina me_mechanic cz_czech_republic as_astronaut_assistant 47 garden"
+   },
+   {
+    "bits": 224,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 42,
+    "phrase": "nz_new_zealand me_mechanic pe_peru fa_farmer 37 dressing_room gb_united_kingdom cy_cyclist gl_greenland pi_pilot_pirate 10 pool nz_new_zealand fa_farmer pk_pakistan fa_farmer 21 forest_house fr_france pi_pilot_pirate id_indonesia nu_nurse 42 secret_chamber no_norway fa_farmer sg_singapore dr_driver 21 palace et_ethiopia pi_pilot_pirate nz_new_zealand me_mechanic 43 cruise_ship mx_mexico fi_fire_fighter_fisherman gb_united_kingdom cy_cyclist 20 mansion"
+   },
+   {
+    "bits": 224,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4",
+    "words": 42,
+    "phrase": "za_south_africa yo_yogi va_vatican yo_yogi 31 school va_vatican yo_yogi pe_peru sw_swimmer 63 beach th_thailand vi_violinist_violoncellist th_thailand pi_pilot_pirate 61 cinema ni_nigeria sw_swimmer pt_portugal bi_bitcoiner_biologist 56 garden za_south_africa ps_psychologist iq_iraq ps_psychologist 44 workshop it_italy fa_farmer tw_taiwan la_lawyer_land_lord 17 school vn_vietnam gy_gynecologist_gymnast ru_russia vi_violinist_violoncellist 16 library"
+   },
+   {
+    "bits": 256,
+    "pattern": "zeros",
+    "entropy": "0000000000000000000000000000000000000000000000000000000000000000",
+    "words": 48,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 0 5star_hotel ae_united_arab_emirates ac_acupuncturist_actor ae_united_arab_emirates ac_acupuncturist_actor 3 castle"
+   },
+   {
+    "bits": 256,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "words": 48,
+    "phrase": "za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 63 zoo za_south_africa yo_yogi za_south_africa yo_yogi 61 gym"
+   },
+   {
+    "bits": 256,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "words": 48,
+    "phrase": "ae_united_arab_emirates ac_acupuncturist_actor at_austria ac_acupuncturist_actor 32 castle at_austria ac_acupuncturist_actor fr_france bi_bitcoiner_biologist 0 taxi ch_switzerland as_astronaut_assistant ch_switzerland fa_farmer 2 sauna hk_hong_kong bi_bitcoiner_biologist eg_egypt sw_swimmer 7 laboratory_laundry ae_united_arab_emirates do_dog_walker_doctor kz_kazakhstan do_dog_walker_doctor 19 bar_ballet_school jp_japan pi_pilot_pirate be_belgium li_lifeguard_librarian_live_streamer 46 castle ar_argentina me_mechanic cz_czech_republic as_astronaut_assistant 44 garden au_australia nu_nurse ir_iran bi_bitcoiner_biologist 59 beach"
+   },
+   {
+    "bits": 256,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 48,
+    "phrase": "nz_new_zealand me_mechanic pe_peru fa_farmer 37 dressing_room gb_united_kingdom cy_cyclist gl_greenland pi_pilot_pirate 10 pool nz_new_zealand fa_farmer pk_pakistan fa_farmer 21 forest_house fr_france pi_pilot_pirate id_indonesia nu_nurse 42 secret_chamber no_norway fa_farmer sg_singapore dr_driver 21 palace et_ethiopia pi_pilot_pirate nz_new_zealand me_mechanic 43 cruise_ship mx_mexico fi_fire_fighter_fisherman gb_united_kingdom cy_cyclist 22 palace cn_china po_police_officer nz_new_zealand fa_farmer 43 garden"
+   },
+   {
+    "bits": 256,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4e3e2e1e0",
+    "words": 48,
+    "phrase": "za_south_africa yo_yogi va_vatican yo_yogi 31 school va_vatican yo_yogi pe_peru sw_swimmer 63 beach th_thailand vi_violinist_violoncellist th_thailand pi_pilot_pirate 61 cinema ni_nigeria sw_swimmer pt_portugal bi_bitcoiner_biologist 56 garden za_south_africa ps_psychologist iq_iraq ps_psychologist 44 workshop it_italy fa_farmer tw_taiwan la_lawyer_land_lord 17 school vn_vietnam gy_gynecologist_gymnast ru_russia vi_violinist_violoncellist 19 laboratory_laundry us_united_states fi_fire_fighter_fisherman kr_south_korea sw_swimmer 0 sauna"
+   }
+  ],
+  "medieval_fantasy": [
+   {
+    "bits": 128,
+    "pattern": "zeros",
+    "entropy": "00000000000000000000000000000000",
+    "words": 24,
+    "phrase": "acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte bestiary"
+   },
+   {
+    "bits": 128,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffff",
+    "words": 24,
+    "phrase": "wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard paradise"
+   },
+   {
+    "bits": 128,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f",
+    "words": 24,
+    "phrase": "acolyte advise_about bloody apron knight crypt acolyte ask_for aphrodisiac extract acolyte tomb alchemist borrow fabric cape apothecary scriptorium artisan hear warped engine butler theater"
+   },
+   {
+    "bits": 128,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 24,
+    "phrase": "emissary reach fizzy poison musician hospital lumberjack earn sanded fork brewer settlement chemist reach ivory quill general library farmer earn primitive harp occultist oracle"
+   },
+   {
+    "bits": 128,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0",
+    "words": 24,
+    "phrase": "wizard yearn wonderful wand leader portal wizard work_on tasty pumpkin wizard boneyard viscount trust oily tankard viscount court tutor pay_for aquamarine relic templar aviary"
+   },
+   {
+    "bits": 160,
+    "pattern": "zeros",
+    "entropy": "0000000000000000000000000000000000000000",
+    "words": 30,
+    "phrase": "acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte temple"
+   },
+   {
+    "bits": 160,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffffffffffff",
+    "words": 30,
+    "phrase": "wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard obelisk"
+   },
+   {
+    "bits": 160,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f10111213",
+    "words": 30,
+    "phrase": "acolyte advise_about bloody apron knight crypt acolyte ask_for aphrodisiac extract acolyte tomb alchemist borrow fabric cape apothecary scriptorium artisan hear warped engine butler outpost cleric advise_about dry jar goldsmith town"
+   },
+   {
+    "bits": 160,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 30,
+    "phrase": "emissary reach fizzy poison musician hospital lumberjack earn sanded fork brewer settlement chemist reach ivory quill general library farmer earn primitive harp occultist shrine necromancer present hardened staff general portal"
+   },
+   {
+    "bits": 160,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedec",
+    "words": 30,
+    "phrase": "wizard yearn wonderful wand leader portal wizard work_on tasty pumpkin wizard boneyard viscount trust oily tankard viscount court tutor pay_for aquamarine relic templar library spy yearn smelly honeycomb puppet_master circus"
+   },
+   {
+    "bits": 192,
+    "pattern": "zeros",
+    "entropy": "000000000000000000000000000000000000000000000000",
+    "words": 36,
+    "phrase": "acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus alchemist graveyard"
+   },
+   {
+    "bits": 192,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffffffffffffffffffff",
+    "words": 36,
+    "phrase": "wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing warlock hell"
+   },
+   {
+    "bits": 192,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f1011121314151617",
+    "words": 36,
+    "phrase": "acolyte advise_about bloody apron knight crypt acolyte ask_for aphrodisiac extract acolyte tomb alchemist borrow fabric cape apothecary scriptorium artisan hear warped engine butler outpost cleric advise_about dry jar goldsmith brewery farmer lend knit bag philosopher garden"
+   },
+   {
+    "bits": 192,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 36,
+    "phrase": "emissary reach fizzy poison musician hospital lumberjack earn sanded fork brewer settlement chemist reach ivory quill general library farmer earn primitive harp occultist shrine necromancer present hardened staff general portal farmer donate nickel padlock ogre cliffs"
+   },
+   {
+    "bits": 192,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8",
+    "words": 36,
+    "phrase": "wizard yearn wonderful wand leader portal wizard work_on tasty pumpkin wizard boneyard viscount trust oily tankard viscount court tutor pay_for aquamarine relic templar library spy yearn smelly honeycomb puppet_master tower noble know magnificent treasure fighter track"
+   },
+   {
+    "bits": 224,
+    "pattern": "zeros",
+    "entropy": "00000000000000000000000000000000000000000000000000000000",
+    "words": 42,
+    "phrase": "acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte valley"
+   },
+   {
+    "bits": 224,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "words": 42,
+    "phrase": "wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing valkyrie scriptorium"
+   },
+   {
+    "bits": 224,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b",
+    "words": 42,
+    "phrase": "acolyte advise_about bloody apron knight crypt acolyte ask_for aphrodisiac extract acolyte tomb alchemist borrow fabric cape apothecary scriptorium artisan hear warped engine butler outpost cleric advise_about dry jar goldsmith brewery farmer lend knit bag philosopher crypt sage advise_about clean diagram priest library"
+   },
+   {
+    "bits": 224,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 42,
+    "phrase": "emissary reach fizzy poison musician hospital lumberjack earn sanded fork brewer settlement chemist reach ivory quill general library farmer earn primitive harp occultist shrine necromancer present hardened staff general portal farmer donate nickel padlock ogre farm peasant own devilish fishing_net elf obelisk"
+   },
+   {
+    "bits": 224,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4",
+    "words": 42,
+    "phrase": "wizard yearn wonderful wand leader portal wizard work_on tasty pumpkin wizard boneyard viscount trust oily tankard viscount court tutor pay_for aquamarine relic templar library spy yearn smelly honeycomb puppet_master tower noble know magnificent treasure general sewer crusader yearn wonderful scimitar general oracle"
+   },
+   {
+    "bits": 256,
+    "pattern": "zeros",
+    "entropy": "0000000000000000000000000000000000000000000000000000000000000000",
+    "words": 48,
+    "phrase": "acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus acolyte abyss acolyte advise_about aboriginal abacus apothecary desert"
+   },
+   {
+    "bits": 256,
+    "pattern": "ones",
+    "entropy": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "words": 48,
+    "phrase": "wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing wizard watchtower wizard yearn wonderful wing viscount monastery"
+   },
+   {
+    "bits": 256,
+    "pattern": "counting",
+    "entropy": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "words": 48,
+    "phrase": "acolyte advise_about bloody apron knight crypt acolyte ask_for aphrodisiac extract acolyte tomb alchemist borrow fabric cape apothecary scriptorium artisan hear warped engine butler outpost cleric advise_about dry jar goldsmith brewery farmer lend knit bag philosopher crypt sage advise_about clean diagram paladin library sculptor ask_for bronze horseshoe troubadour brewery"
+   },
+   {
+    "bits": 256,
+    "pattern": "alternating",
+    "entropy": "aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55",
+    "words": 48,
+    "phrase": "emissary reach fizzy poison musician hospital lumberjack earn sanded fork brewer settlement chemist reach ivory quill general library farmer earn primitive harp occultist shrine necromancer present hardened staff general portal farmer donate nickel padlock ogre farm peasant own devilish fishing_net explorer portal gladiator break_down golden medal phalanx hospital"
+   },
+   {
+    "bits": 256,
+    "pattern": "descending",
+    "entropy": "fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4e3e2e1e0",
+    "words": 48,
+    "phrase": "wizard yearn wonderful wand leader portal wizard work_on tasty pumpkin wizard boneyard viscount trust oily tankard viscount court tutor pay_for aquamarine relic templar library spy yearn smelly honeycomb puppet_master tower noble know magnificent treasure general sewer crusader yearn wonderful scimitar hero nunnery cleric work_on tasty hydromel acolyte runes"
+   }
+  ]
+ }
+}

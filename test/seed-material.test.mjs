@@ -95,10 +95,12 @@ test("the words, entropy hex and seed hex are produced on request and match BIP3
 // length and the passphrase at the fixed placeholder (its length would
 // narrow a search for it); the revealed view is the value. Both are rendered
 // with the unchanged primitives around the independently computed values, in
-// the order the card has always used: words, SeedQR, passphrase, entropy, seed.
+// the order the card uses: words, SeedQR, passphrase, entropy, seed, and
+// then the same entropy as a Formosa phrase per theme. The Formosa rows come
+// last so that nothing separates the passphrase from the words it unlocks.
 test("the recovery fields render the same, hidden and revealed", async () => {
   // The QR renderer is the uqr package, which the slice loader does not import.
-  const view = await load(["hodlSeedRecoveryFields", "hodlSeedPhraseField", "hodlSeedQrExport", "hodlPrivateFieldHtml"], { hodlUqrRenderSvg: renderSVG }, ["hodlRevealPrivate"]);
+  const view = await load(["hodlSeedRecoveryFields", "hodlSeedPhraseField", "hodlSeedQrExport", "hodlPrivateFieldHtml", "hodlFormosaRecoveryFields"], { hodlUqrRenderSvg: renderSVG }, ["hodlRevealPrivate"]);
   for (const revealed of [false, true]) {
     view.__set.hodlRevealPrivate(revealed);
     for (const [label, vector, wallet] of await wallets()) {
@@ -108,18 +110,20 @@ test("the recovery fields render the same, hidden and revealed", async () => {
         view.hodlPrivateFieldHtml("BIP39 passphrase", revealed ? vector.pass : ""),
         view.hodlPrivateFieldHtml("BIP39 entropy hex", vector.entropy),
         view.hodlPrivateFieldHtml("Master seed hex", vector.seed),
+        ...view.hodlFormosaRecoveryFields(wallet),
       ].join("");
       assert.equal(view.hodlSeedRecoveryFields(wallet).join(""), expected, `${revealed ? "revealed" : "hidden"}, ${label}`);
     }
     // Without a passphrase there is no passphrase field.
     const vector = { ...VECTORS[1], pass: "" }, wallet = await fromWords(vector), seed = hex.encode(mnemonicToSeedSync(vector.words, ""));
     const expected = view.hodlSeedPhraseField("Your seed phrase \xB7 12 words", vector.words) + view.hodlSeedQrExport(vector.words, { passphraseUsed: false, entropyHex: vector.entropy })
-      + view.hodlPrivateFieldHtml("BIP39 entropy hex", vector.entropy) + view.hodlPrivateFieldHtml("Master seed hex", seed);
+      + view.hodlPrivateFieldHtml("BIP39 entropy hex", vector.entropy) + view.hodlPrivateFieldHtml("Master seed hex", seed)
+      + view.hodlFormosaRecoveryFields(wallet).join("");
     assert.equal(view.hodlSeedRecoveryFields(wallet).join(""), expected, `${revealed ? "revealed" : "hidden"}, no passphrase`);
     // A BIP-85 child's session key carries the child's entropy as bytes (#546 B3).
     const words = VECTORS[2].words, child = { kind: "hd", entropy: hex.decode(VECTORS[2].entropy), passphraseUsed: false };
     assert.equal(view.hodlSeedRecoveryFields(child).join(""), view.hodlSeedPhraseField("Your seed phrase \xB7 24 words", words) + view.hodlSeedQrExport(words, { passphraseUsed: false, entropyHex: VECTORS[2].entropy })
-      + view.hodlPrivateFieldHtml("BIP39 entropy hex", VECTORS[2].entropy), `${revealed ? "revealed" : "hidden"}, BIP-85 child words`);
+      + view.hodlPrivateFieldHtml("BIP39 entropy hex", VECTORS[2].entropy) + view.hodlFormosaRecoveryFields(child).join(""), `${revealed ? "revealed" : "hidden"}, BIP-85 child words`);
   }
 });
 

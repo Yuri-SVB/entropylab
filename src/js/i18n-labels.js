@@ -5,6 +5,31 @@
 // set, so the locale catalogs translate them content-keyed like any prose.
 // Plain prose does not belong here — write it inline and call t("…").
 
+// Formosa themes (hodlFormosaThemeIds indexes these). The names are the
+// upstream theme ids read as English, not translations of the word lists
+// themselves, which stay in the language the theme was built in.
+// What a Formosa position is called in a sentence. The data's own names are
+// internal (ORIGIN1, WILDCARD), and a theme gives the same name a different
+// job: global's wildcard is a number, medieval_fantasy's is a second subject.
+export const hodlFormosaPositionLabels = Object.freeze({
+  "global.ORIGIN1": "country",
+  "global.ORIGIN2": "country",
+  "global.PROFESSION1": "profession",
+  "global.PROFESSION2": "profession",
+  "global.WILDCARD": "number",
+  "global.PLACE": "place",
+  "medieval_fantasy.SUBJECT": "subject",
+  "medieval_fantasy.VERB": "verb",
+  "medieval_fantasy.OBJECT": "object",
+  "medieval_fantasy.ADJECTIVE": "adjective",
+  "medieval_fantasy.WILDCARD": "second subject",
+  "medieval_fantasy.PLACE": "place",
+});
+export const hodlFormosaThemeLabels = Object.freeze({
+  global: "Global",
+  medieval_fantasy: "Medieval fantasy",
+});
+
 // Key Station method picker (hodlKeyModes indexes these).
 export const hodlKeyModeLabels = Object.freeze({
   dice: "Dice rolls",

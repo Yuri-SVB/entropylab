@@ -78,7 +78,8 @@ import { VANITY_HARDENED, VANITY_MAX_INDEX, VANITY_METHODS, VANITY_SCRIPTS, Vani
 import { tHtml as hodlT, t as hodlTText, tAttr as hodlTAttr, hodlInitLocale, hodlFillLocaleSelect, hodlGetLocale } from "./i18n.js";
 import { hodlSanitizeCatalogHtml } from "./i18n-sanitize.js";
 import hodlShellHtml from "../shell.html";
-import { hodlKeyModeLabels, hodlMsigSpecLabels, hodlNetworkNames, hodlHexFormatLabels, hodlScriptBeginnerTexts, hodlFairnessVerdictLabels } from "./i18n-labels.js";
+import { formosaEncode, formosaWordCount, formosaAnalyze, formosaCandidates, formosaPartialBits } from "./formosa.js";
+import { hodlFormosaPositionLabels, hodlFormosaThemeLabels, hodlKeyModeLabels, hodlMsigSpecLabels, hodlNetworkNames, hodlHexFormatLabels, hodlScriptBeginnerTexts, hodlFairnessVerdictLabels } from "./i18n-labels.js";
 import {
   entryMethodLabel as hodlJournalEntryMethodLabel,
   addEntry as hodlJournalAddEntry,
@@ -724,7 +725,7 @@ hodlRootEl.innerHTML = hodlShellHtml;if (/^(www\.)?entropylab\.online$/i.test(lo
 initTextServiceOptOuts();
 var hodlSecurityLog = initSecurityLog();
 initTranslationWarning(document, () => hodlSecurityLog?.record("page-translated"));
-var hodlKeyModes = ["dice", "cards", "hex", "seed", "key"], hodlBrainLabAck = { scalar: false, hd: false }, hodlCardRanks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"], hodlDirectCardRanks = ["A", "2", "3", "4", "5", "6", "7", "8"], hodlCardSuits = [{ code: "S", symbol: "♠", label: "Spades", red: false }, { code: "H", symbol: "♥", label: "Hearts", red: true }, { code: "C", symbol: "♣", label: "Clubs", red: false }, { code: "D", symbol: "♦", label: "Diamonds", red: true }], hodlCardSuit = "", hodlCardRank = "", hodlCardMethod = "hashed", hodlSeedMethod = "words", hodlSeedZeroIndexed = false, hodlCardColemanSymbols = false, hodlKeyMode = "dice", hodlDiceMethod = "coldcard", hodlTargetWordCount = 24, hodlEntropyFormat = "hex", hodlDiceCoinPositions = [], hodlPickedLastWord = "", hodlWalletResult = null, hodlRevealPrivate = false, hodlWalletDatBirthday = "genesis", hodlModesEl = hodlElement("#modes"), hodlFormEl = hodlElement("#form"), hodlOutEl = hodlElement("#out");
+var hodlKeyModes = ["dice", "cards", "hex", "seed", "key"], hodlBrainLabAck = { scalar: false, hd: false }, hodlCardRanks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"], hodlDirectCardRanks = ["A", "2", "3", "4", "5", "6", "7", "8"], hodlCardSuits = [{ code: "S", symbol: "♠", label: "Spades", red: false }, { code: "H", symbol: "♥", label: "Hearts", red: true }, { code: "C", symbol: "♣", label: "Clubs", red: false }, { code: "D", symbol: "♦", label: "Diamonds", red: true }], hodlCardSuit = "", hodlCardRank = "", hodlCardMethod = "hashed", hodlSeedMethod = "words", hodlSeedZeroIndexed = false, hodlFormosaTheme = "global", hodlCardColemanSymbols = false, hodlKeyMode = "dice", hodlDiceMethod = "coldcard", hodlTargetWordCount = 24, hodlEntropyFormat = "hex", hodlDiceCoinPositions = [], hodlPickedLastWord = "", hodlWalletResult = null, hodlRevealPrivate = false, hodlWalletDatBirthday = "genesis", hodlModesEl = hodlElement("#modes"), hodlFormEl = hodlElement("#form"), hodlOutEl = hodlElement("#out");
 function hodlDiceFieldName(method = hodlDiceMethod) {
   if (method === "coleman") return "colemanDice";
   if (method === "bitbox") return "bitboxDice";
@@ -1973,6 +1974,33 @@ function hodlSingleWalletData(wallet) {
 // while private values are revealed; hidden, every word masks at the same
 // width, so only the word count is needed. BIP39 has three words for every
 // four bytes of entropy; a BIP-85 child's session key carries its words.
+// The themes EntropyLab ships. Both are offered rather than chosen for the
+// user: which sentences someone can actually remember is a matter of taste.
+var hodlFormosaThemeIds = Object.freeze(["global", "medieval_fantasy"]);
+// A Formosa phrase is the same entropy in another alphabet, so it is recovery
+// material and masks like the BIP-39 phrase above it: concealed, the words are
+// never derived at all, and the card carries bullets instead. Deriving them
+// and hiding them with CSS would put the seed in the DOM.
+function hodlFormosaRecoveryFields(wallet) {
+  let entropy = wallet?.entropy;
+  if (!entropy) return [];
+  let count = formosaWordCount(entropy.length * 8);
+  return hodlFormosaThemeIds.map((themeId) => {
+    let words;
+    if (hodlRevealPrivate) {
+      try {
+        words = formosaEncode(entropy, themeId).words.join(" ");
+      } catch {
+        return "";
+      }
+    } else {
+      words = Array(count).fill("\u2022").join(" ");
+    }
+    // The word count is on the row because a Formosa phrase of a given length
+    // carries half the entropy of a BIP-39 phrase of the same length.
+    return hodlSeedPhraseField(hodlTText("Formosa phrase · {theme} · {count} words", { theme: hodlFormosaThemeLabels[themeId], count }), words);
+  }).filter(Boolean);
+}
 function hodlSeedRecoveryFields(wallet) {
   if (!hodlResultHasSeed(wallet)) return [];
   let count = wallet.entropy.length * 3 / 4;
@@ -1985,6 +2013,10 @@ function hodlSeedRecoveryFields(wallet) {
   if (wallet.passphraseUsed && wallet.passphrase?.length) fields.push(hodlPrivateKeyFieldHtml("BIP39 passphrase", 0, () => hodlResultPassphrase(wallet)));
   if (wallet.entropy) fields.push(hodlPrivateKeyFieldHtml("BIP39 entropy hex", wallet.entropy.length * 2, () => hodlResultEntropyHex(wallet)));
   if (wallet.seed) fields.push(hodlPrivateKeyFieldHtml("Master seed hex", wallet.seed.length * 2, () => hodlResultSeedHex(wallet)));
+  // Last, and not between any of the above: the passphrase belongs beside
+  // the words it unlocks, and another encoding of the same entropy is not
+  // something to separate them with.
+  fields.push(...hodlFormosaRecoveryFields(wallet));
   return fields;
 }
 function hodlHdWalletData(wallet, accountMarkup = "") {
@@ -4322,7 +4354,120 @@ function hodlValidateTargetMnemonic(value, targetWords = hodlTargetWordCount) {
   return { ...result, error: { key: "Words are on the list, but the checksum does not match. One of the words is wrong, or this is not a BIP39 phrase." } };
 }
 function hodlNormalizeSeedMethod(method) {
-  return method === "numbers" ? "numbers" : "words";
+  return method === "numbers" || method === "formosa" ? String(method) : "words";
+}
+function hodlNormalizeFormosaTheme(id) {
+  return hodlFormosaThemeIds.includes(String(id ?? "")) ? String(id) : hodlFormosaThemeIds[0];
+}
+// A Formosa phrase of the same entropy is twice as many words: six per
+// 33 bits of entropy-plus-checksum, against eleven bits per BIP39 word.
+// The seed length control governs here as it does for BIP39 words: a phrase
+// of a different supported size is a valid phrase of the wrong length, and
+// saying so beats deriving a key the person did not ask for.
+function hodlFormosaReady(report, targetWords = hodlTargetWordCount) {
+  return Boolean(report?.checksumOk) && report.count === hodlFormosaConfig(targetWords).words;
+}
+function hodlFormosaInputError(report, targetWords = hodlTargetWordCount) {
+  let config = hodlFormosaConfig(targetWords);
+  if (!report || !report.count) return hodlError("Enter all {words} Formosa words before deriving.", { words: config.words });
+  if (report.invalid.length) {
+    let first = report.invalid[0];
+    return hodlError("Word {n} (“{word}”) is not on the {position} list for this theme.", { n: first.at + 1, word: first.word, position: hodlFormosaPositionLabel(first.position) });
+  }
+  if (report.forbidden.length) {
+    let first = report.forbidden[0];
+    return hodlError("Word {n} (“{word}”) cannot follow “{lead}”.", { n: first.at + 1, word: first.word, lead: first.leadWord });
+  }
+  if (report.count > config.words) return hodlError("Remove {n} extra Formosa word(s) before deriving.", { n: report.count - config.words });
+  if (report.count !== config.words) return hodlError("{entered} of {words} Formosa words entered.", { entered: report.count, words: config.words });
+  return hodlError("The Formosa phrase is well formed but its checksum does not match, so a word is wrong.");
+}
+// The three seed formats are three spellings of one entropy, so a switch
+// between them converts through it. Anything short of a whole, checksum-valid
+// phrase converts to nothing and returns null, which leaves the target field
+// as it was rather than blanking work in progress.
+function hodlSeedFormatEntropy(value, format, targetWords = hodlTargetWordCount) {
+  if (format === "formosa") {
+    let report = formosaAnalyze(hodlFormosaWords(value), hodlFormosaTheme);
+    return report.checksumOk ? report.entropy : null;
+  }
+  let mnemonic = format === "numbers" ? hodlParseSeedNumbers(value, targetWords, hodlSeedZeroIndexed).phrase : hodlNormalizeMnemonicText(value);
+  if (!mnemonic || !hodlIsValidMnemonic(mnemonic, hodlBip39Wordlist)) return null;
+  return hodlMnemonicToEntropy(mnemonic, hodlBip39Wordlist);
+}
+function hodlConvertSeedFormat(value, from, to, targetWords = hodlTargetWordCount) {
+  if (!String(value ?? "").trim()) return "";
+  let entropy = hodlSeedFormatEntropy(value, from, targetWords);
+  if (!entropy) return null;
+  if (to === "formosa") {
+    try {
+      return formosaEncode(entropy, hodlFormosaTheme).words.join(" ");
+    } catch {
+      // A size Formosa does not divide evenly. Nothing to show, nothing to lose.
+      return null;
+    }
+  }
+  let mnemonic = hodlEntropyToMnemonic(entropy, hodlBip39Wordlist);
+  return to === "numbers" ? hodlSeedWordsToNumbers(mnemonic, hodlSeedZeroIndexed) : mnemonic;
+}
+// Formosa words carry underscores, which the BIP39 filter strips.
+function hodlFilterFormosa(value) {
+  return String(value ?? "").replace(/[^a-zA-Z0-9_\s]/g, "").toLowerCase();
+}
+// The words with their offsets, so a wrong one can be highlighted where it
+// was typed rather than merely counted.
+function hodlFormosaTokens(value) {
+  return [...String(value ?? "").toLowerCase().matchAll(/[a-z0-9_]+/g)].map((match) => ({ word: match[0], start: match.index, end: match.index + match[0].length }));
+}
+// How many characters separate every word of a candidate set. Two inside any
+// leader's row; a position whose leader is not yet typed offers its whole
+// list, and medieval_fantasy's lists need up to nine.
+function hodlFormosaPrefixLength(words) {
+  for (let length = 1; length < 32; length++) {
+    if (new Set(words.map((word) => word.slice(0, length))).size === words.length) return length;
+  }
+  return 32;
+}
+// The position's name as a sentence calls it, never the data's internal one.
+function hodlFormosaPositionLabel(position, themeId = hodlFormosaTheme) {
+  let label = hodlFormosaPositionLabels[`${themeId}.${position}`];
+  return label ? hodlTText(label) : String(position).toLowerCase();
+}
+function hodlUpdateFormosaThemeHelp(targetWords = hodlTargetWordCount) {
+  let help = document.getElementById("seed-formosa-theme-help");
+  if (!help) return;
+  let data = formosaCandidates([], 0, hodlFormosaTheme), config = hodlFormosaConfig(targetWords);
+  help.textContent = hodlTText("{sentences} sentences of six words, {bits} bits of entropy. Each sentence opens with the {position}.", { sentences: config.sentences, bits: config.seed.bits, position: hodlFormosaPositionLabel(data.position) });
+}
+// Completes a word only when what is typed can be only one word of the
+// position being typed, and never across the space that ends it: a guess
+// the person did not make is a word they did not choose.
+function hodlAutocompleteFormosaInput(input, event, targetWords = hodlTargetWordCount) {
+  if (event?.inputType && event.inputType !== "insertText") return false;
+  let caret = input.selectionStart;
+  if (caret !== input.selectionEnd || caret !== input.value.length) return false;
+  let tokens = hodlFormosaTokens(input.value), last = tokens[tokens.length - 1];
+  if (!last || last.end !== input.value.length || tokens.length > hodlFormosaConfig(targetWords).words) return false;
+  let candidates = formosaCandidates(tokens.map((token) => token.word), tokens.length - 1, hodlFormosaTheme).words.filter((word) => word.startsWith(last.word));
+  if (candidates.length !== 1 || candidates[0] === last.word) return false;
+  input.value = input.value.slice(0, last.start) + candidates[0];
+  input.setSelectionRange(input.value.length, input.value.length);
+  return true;
+}
+function hodlFormosaConfig(targetWords = hodlTargetWordCount) {
+  let seed = hodlSeedConfig(targetWords);
+  return { seed, words: formosaWordCount(seed.bits), sentences: formosaWordCount(seed.bits) / 6 };
+}
+// The element a seed-mode value is typed into. Three formats, three fields.
+function hodlSeedInputId(method = hodlSeedMethod) {
+  return method === "numbers" ? "seed-numbers" : method === "formosa" ? "seed-formosa" : "seed";
+}
+function hodlSeedFieldName(method = hodlSeedMethod) {
+  return method === "numbers" ? "seedNumbers" : method === "formosa" ? "seedFormosa" : "seed";
+}
+// Whitespace-separated, lower case: the words as the codec wants them.
+function hodlFormosaWords(value) {
+  return String(value ?? "").toLowerCase().split(/[^a-z0-9_]+/).filter(Boolean);
 }
 function hodlFilterSeedNumbers(value, zeroIndexed = false) {
   let clean = String(value ?? "").replace(/[^0-9\s]/g, "").replace(/\s+/g, " ");
@@ -4354,6 +4499,13 @@ function hodlTranslateSeedNumberIndex(value, toZeroIndexed) {
   });
 }
 function hodlSelectedSeedInput(targetWords = hodlTargetWordCount) {
+  if (hodlSeedMethod === "formosa") {
+    // A Formosa phrase is the same entropy in another alphabet, so it joins
+    // the BIP39 path as the words that entropy makes rather than deriving by
+    // a route of its own.
+    let report = formosaAnalyze(hodlFormosaWords(document.getElementById("seed-formosa")?.value ?? ""), hodlFormosaTheme);
+    return { value: report.checksumOk ? hodlEntropyToMnemonic(report.entropy, hodlBip39Wordlist) : "", extended: false, parsed: null, formosa: report };
+  }
   if (hodlSeedMethod === "numbers") {
     let input = document.getElementById("seed-numbers"), parsed = hodlParseSeedNumbers(input?.value ?? "", targetWords, hodlSeedZeroIndexed);
     return { value: parsed.phrase, extended: false, parsed };
@@ -5642,7 +5794,7 @@ function hodlGlobalSyncCurrentValue() {
   if (hodlKeyMode === "dice") return document.getElementById("dice")?.value ?? hodlStoredDiceValue(fields) ?? "";
   if (hodlKeyMode === "cards") return document.getElementById(hodlCardMethod === "direct" ? "direct-cards" : "cards")?.value ?? fields[hodlCardMethod === "direct" ? "directCards" : "cards"] ?? "";
   if (hodlKeyMode === "hex") return document.getElementById(hodlEntropyFormat)?.value ?? fields[hodlEntropyFormat] ?? "";
-  if (hodlKeyMode === "seed") return document.getElementById(hodlSeedMethod === "numbers" ? "seed-numbers" : "seed")?.value ?? fields[hodlSeedMethod === "numbers" ? "seedNumbers" : "seed"] ?? "";
+  if (hodlKeyMode === "seed") return document.getElementById(hodlSeedInputId())?.value ?? fields[hodlSeedFieldName()] ?? "";
   let values = hodlPrivateKeyValues(fields), kind = hodlNormalizePrivateKeyKind(document.querySelector('input[name="kk"]:checked')?.value || fields.keyKind, "");
   return document.getElementById("key")?.value ?? values[kind] ?? "";
 }
@@ -5767,6 +5919,9 @@ function hodlGlobalSyncCurrentBits(targetWords = hodlTargetWordCount) {
     }
     if (hodlKeyMode === "seed") {
       let words;
+      // Formosa publishes its own bits: its words are not BIP39 words, and
+      // its sentences settle 33 bits at a time rather than 11 per word.
+      if (hodlSeedMethod === "formosa") return formosaPartialBits(hodlFormosaWords(value), hodlFormosaTheme);
       if (hodlSeedMethod === "numbers") words = hodlParseSeedNumbers(value, config.words, hodlSeedZeroIndexed).wordSlots;
       else if (!hodlLooksExtendedKey(value)) {
         words = [];
@@ -6042,7 +6197,7 @@ function hodlRenderMeta(id, lines, tail) {
 // length, then at most one cue, the way the dice and card lines read. Past the
 // phrase length the count stops reading "N of M" and names both numbers.
 function hodlRenderSeedProgress(id, unit, entered, words, cue = null) {
-  let count = entered > words ? hodlTText("{entered} entered · {words} required", { entered: hodlMetaToken, words }) : hodlTText(unit === "numbers" ? "{entered} of {words} BIP39 word numbers entered" : "{entered} of {words} BIP39 words entered", { entered: hodlMetaToken, words });
+  let count = entered > words ? hodlTText("{entered} entered · {words} required", { entered: hodlMetaToken, words }) : hodlTText(unit === "numbers" ? "{entered} of {words} BIP39 word numbers entered" : unit === "formosa" ? "{entered} of {words} Formosa words entered" : "{entered} of {words} BIP39 words entered", { entered: hodlMetaToken, words });
   hodlRenderMeta(id, [[count, hodlMetaValue(String(entered), entered === words)], ...(cue ? [[hodlMetaToken, cue]] : [])]);
   // The count and the cue carry the colour, so the block keeps its own.
   hodlElement("#" + id).className = "muted";
@@ -6216,6 +6371,11 @@ function hodlUpdateSeedLengthControl() {
       ? hodlT(" Enter {fullDigits} complete {shortLabel} characters followed by {n} coin flip(s), using Heads (0) or Tails (1).", { fullDigits: format.fullDigits, shortLabel: format.shortLabel, n: format.remainderBits })
       : hodlT(" The final character contributes {n} bit(s) and must be one of {chars}.", { n: format.remainderBits, chars: [...format.finalCharacters].join(", ") });
     help.textContent = hodlTText("{words} words require exactly {digits} {unit}.", { words: config.words, digits: format.digits, unit: format.unit }) + extra;
+    return;
+  }
+  if (hodlKeyMode === "seed" && hodlSeedMethod === "formosa") {
+    let formosa = hodlFormosaConfig(config.words);
+    help.textContent = hodlTText("Enter exactly {words} Formosa words — {sentences} sentences carrying the same {bits} bits.", { words: formosa.words, sentences: formosa.sentences, bits: config.bits });
     return;
   }
   help.textContent = hodlKeyMode === "seed" ? hodlSeedMethod === "numbers" ? hodlTText("Enter exactly {words} BIP39 word numbers using {range}.", { words: config.words, range: hodlTText(hodlSeedZeroIndexed ? "0 through 2047" : "1 through 2048") }) : hodlTText("Enter exactly {words} BIP39 words. Extended keys ignore this selection.", { words: config.words }) : hodlKeyMode === "cards" ? hodlCardMethod === "direct" ? hodlTText("{words} words use {partial} complete 11-bit rank selections plus {final} final rank draw(s).", { words: config.words, partial: config.partialWords, final: hodlDirectCardFinalRadices(config.words).length }) : config.words === 24 ? hodlTText("24 words need 256 bits. One deck is about 225.6 bits, so deal 52 unique cards, shuffle again, then deal 6 more.") : hodlTText("{words} words need {bits} bits. Deal {first} unique cards from one shuffled deck.", { words: config.words, bits: config.bits, first: hodlCardNeeded(config.words).first }) : hodlTText("{words} words use {bits} bits of BIP39 entropy.", { words: config.words, bits: config.bits });
@@ -6529,15 +6689,21 @@ function hodlRenderKeyForm() {
     return;
   }
   if (hodlKeyMode === "seed") {
-    let state = hodlKeys[hodlActiveKey], autocompleteEnabled = Boolean(state?.seedAutocomplete), numbers = hodlSeedMethod === "numbers", choices = `<p class="label">${hodlT("Seed phrase format")}</p><div class="choice-grid seed-method-grid"><label class="choice"><input type="radio" name="seed-method" value="words" ${numbers ? "" : "checked"} /><span><strong>${hodlT("Direct word entry")}</strong><span class="desc">${hodlT("Type or paste the English BIP39 words themselves.")} ${hodlT("An extended key can be pasted too. With {n} words entered, the final checksum word can be chosen from a list.", { n: config.partialWords })}</span></span></label><label class="choice"><input type="radio" name="seed-method" value="numbers" ${numbers ? "checked" : ""} /><span><strong>${hodlT("BIP39 word numbers")}</strong><span class="desc">${hodlT("Enter each word's position in the standard English list, using 1 through 2048 by default.")}</span></span></label></div>`;
+    let state = hodlKeys[hodlActiveKey], autocompleteEnabled = Boolean(state?.seedAutocomplete), numbers = hodlSeedMethod === "numbers", formosa = hodlSeedMethod === "formosa", formosaConfig = hodlFormosaConfig(config.words), choices = `<p class="label">${hodlT("Seed phrase format")}</p><div class="choice-grid seed-method-grid"><label class="choice"><input type="radio" name="seed-method" value="words" ${numbers ? "" : "checked"} /><span><strong>${hodlT("Direct word entry")}</strong><span class="desc">${hodlT("Type or paste the English BIP39 words themselves.")} ${hodlT("An extended key can be pasted too. With {n} words entered, the final checksum word can be chosen from a list.", { n: config.partialWords })}</span></span></label><label class="choice"><input type="radio" name="seed-method" value="numbers" ${numbers ? "checked" : ""} /><span><strong>${hodlT("BIP39 word numbers")}</strong><span class="desc">${hodlT("Enter each word's position in the standard English list, using 1 through 2048 by default.")}</span></span></label><label class="choice"><input type="radio" name="seed-method" value="formosa" ${formosa ? "checked" : ""} /><span><strong>${hodlT("Formosa sentences")}</strong><span class="desc">${hodlT("The same entropy as sentences instead of a word list (BIP-450). {words} words — six per sentence, half the entropy per word.", { words: formosaConfig.words })}</span></span></label></div>`;
     let bindMethodChoices = (input) => hodlFormEl.querySelectorAll('input[name="seed-method"]').forEach((radio) => {
       radio.onchange = () => {
         if (!radio.checked) return;
         let next = hodlNormalizeSeedMethod(radio.value), currentValue = input.value;
         if (state) {
-          if (numbers) state.fields.seedNumbers = currentValue;
-          else state.fields.seed = currentValue;
-          if (next === "numbers") {
+          state.fields[hodlSeedFieldName(hodlSeedMethod)] = currentValue;
+          // Formosa is the same entropy in another alphabet, so a switch into
+          // or out of it converts through the entropy rather than discarding
+          // what was typed. A phrase that is not yet whole converts to
+          // nothing, exactly as a half-typed word list does.
+          if (next === "formosa" || formosa) {
+            let converted = hodlConvertSeedFormat(currentValue, hodlSeedMethod, next, config.words);
+            if (converted !== null) state.fields[hodlSeedFieldName(next)] = converted;
+          } else if (next === "numbers") {
             let converted = hodlSeedWordsToNumbers(currentValue, hodlSeedZeroIndexed);
             if (converted || !currentValue.trim()) state.fields.seedNumbers = converted;
           } else {
@@ -6597,6 +6763,81 @@ function hodlRenderKeyForm() {
       hodlBindSeedNumberPad(input, update);
       hodlBindKeyFields();
       hodlRenderPassphraseKeyboard();
+      update();
+      return;
+    }
+    if (formosa) {
+      let themeOptions = hodlFormosaThemeIds.map((id) => `<option value="${id}" ${id === hodlFormosaTheme ? "selected" : ""}>${hodlT(hodlFormosaThemeLabels[id])}</option>`).join("");
+      hodlFormEl.innerHTML = `${choices}<p class="label" id="seed-formosa-theme-label">${hodlT("Formosa theme")}</p><div class="seed-formosa-theme"><select id="seed-formosa-theme-select" aria-labelledby="seed-formosa-theme-label">${themeOptions}</select></div><p class="field-note edge-note is-muted" id="seed-formosa-theme-help"></p><p class="label" id="seed-formosa-label">${hodlT("Your {words} Formosa words", { words: formosaConfig.words })}</p>${hodlSeedMetaRowMarkup("seed-formosa-meta", true)}<div class="passphrase-keyboard-tools">${hodlSwitchRowMarkup("seed-formosa-autocomplete", hodlT("Autocomplete Formosa words"), { note: hodlT("Complete a word once what is typed can only be one"), checked: autocompleteEnabled })}</div><div class="dice-input-shell seed-formosa-input-shell"><pre class="dice-input-highlight" translate="no" id="seed-formosa-highlight" aria-hidden="true"></pre><textarea id="seed-formosa" translate="no" aria-labelledby="seed-formosa-label" aria-describedby="seed-formosa-meta" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea></div>${hodlSeedPhraseRowMarkup(hodlT("Your seed phrase"))}<div id="seed-formosa-words" translate="no" class="dice-word-grid" role="group" aria-label="${hodlTAttr("{n} seed-word slots", { n: config.words })}"></div>`;
+      let input = document.getElementById("seed-formosa"), themeSelect = document.getElementById("seed-formosa-theme-select");
+      let update = () => {
+        let tokens = hodlFormosaTokens(input.value), words = tokens.map((token) => token.word);
+        let report = formosaAnalyze(words, hodlFormosaTheme), cue = null, ranges = [];
+        let derived = hodlFormosaReady(report, config.words) ? hodlEntropyToMnemonic(report.entropy, hodlBip39Wordlist).split(" ") : [];
+        hodlRenderDiceWordGrid(document.getElementById("seed-formosa-words"), derived, config.words, false);
+        for (let entry of [...report.invalid, ...report.forbidden]) {
+          if (tokens[entry.at]) ranges.push([tokens[entry.at].start, tokens[entry.at].end]);
+        }
+        for (let at = formosaConfig.words; at < tokens.length; at++) ranges.push([tokens[at].start, tokens[at].end]);
+        hodlRenderInputHighlight(input, ranges);
+        if (tokens.length > formosaConfig.words) {
+          let extra = tokens.length - formosaConfig.words;
+          cue = hodlMetaCue(hodlTText(extra === 1 ? "{n} extra word highlighted · remove it to continue" : "{n} extra words highlighted · remove them to continue", { n: extra }), "error");
+        } else if (report.invalid.length) {
+          let first = report.invalid[0];
+          cue = hodlMetaCue(hodlTText("Word {n} (“{word}”) is not on the {position} list · correct to continue", { n: first.at + 1, word: first.word, position: hodlFormosaPositionLabel(first.position) }), "error");
+        } else if (report.forbidden.length) {
+          let first = report.forbidden[0];
+          cue = hodlMetaCue(hodlTText("Word {n} (“{word}”) cannot follow “{lead}” · correct to continue", { n: first.at + 1, word: first.word, lead: first.leadWord }), "error");
+        } else if (report.count === formosaConfig.words) {
+          cue = hodlMetaCue(report.checksumOk ? hodlTText("Checksum valid · ready to derive") : hodlTText("BIP39 checksum invalid · a word is wrong"), report.checksumOk ? "" : "error");
+        } else {
+          // What the next word needs: inside a leader's row two characters
+          // name it, but a position whose leader is not yet typed offers its
+          // whole list, and those take more.
+          let next = formosaCandidates(words, tokens.length, hodlFormosaTheme);
+          cue = hodlMetaCue(hodlTText("Next word: {position} · {total} to choose from, {n} letters name one", { position: hodlFormosaPositionLabel(next.position), total: next.words.length, n: hodlFormosaPrefixLength(next.words) }), "next");
+        }
+        hodlRenderSeedProgress("seed-formosa-meta", "formosa", tokens.length, formosaConfig.words, cue);
+        hodlQueueMasterFingerprintPreview();
+        return report;
+      };
+      themeSelect.onchange = () => {
+        // The theme is the alphabet, not the key: read the entropy in the
+        // theme the phrase was typed in, then spell it in the new one.
+        // Anything short of a whole phrase is left alone rather than
+        // silently reinterpreted under a theme it was not written in.
+        let entropy = hodlSeedFormatEntropy(input.value, "formosa", config.words);
+        hodlFormosaTheme = hodlNormalizeFormosaTheme(themeSelect.value);
+        if (entropy) {
+          try {
+            input.value = formosaEncode(entropy, hodlFormosaTheme).words.join(" ");
+          } catch { /* a size this theme cannot carry; leave the field alone */ }
+        }
+        if (state) {
+          state.formosaTheme = hodlFormosaTheme;
+          state.fields.seedFormosa = input.value;
+        }
+        hodlInvalidateActiveKeyOutput();
+        hodlUpdateFormosaThemeHelp(config.words);
+        update();
+      };
+      let toggle = document.getElementById("seed-formosa-autocomplete");
+      toggle.onchange = () => {
+        if (state) state.seedAutocomplete = toggle.checked;
+        input.focus({ preventScroll: true });
+        update();
+      };
+      input.oninput = (event) => {
+        hodlApplyFilteredInput(input, hodlFilterFormosa);
+        if (toggle.checked) hodlAutocompleteFormosaInput(input, event, config.words);
+        update();
+      };
+      input.onscroll = () => hodlSyncDiceHighlight(input);
+      bindMethodChoices(input);
+      hodlBindKeyFields();
+      hodlRenderPassphraseKeyboard();
+      hodlUpdateFormosaThemeHelp(config.words);
       update();
       return;
     }
@@ -7299,7 +7540,7 @@ function hodlInitMasterFingerprintPreview() {
   if (!panel || !pass) return;
   panel.addEventListener("input", (event) => {
     let id = event.target?.id;
-    if (!["pass", "dice", "hex", "bin", "base4", "base8", "base32", "base64", "seed", "seed-numbers", "cards", "direct-cards", "brain-lab", "key"].includes(id)) return;
+    if (!["pass", "dice", "hex", "bin", "base4", "base8", "base32", "base64", "seed", "seed-numbers", "seed-formosa", "cards", "direct-cards", "brain-lab", "key"].includes(id)) return;
     if (id === "pass") {
       let state = hodlKeys[hodlActiveKey];
       hodlAutocompletePassphraseInput(pass, event);
@@ -7419,6 +7660,7 @@ async function hodlCalculateKey(progress, action = "derive") {
       let selected = hodlSelectedSeedInput(hodlTargetWordCount), value = selected.value;
       if (selected.extended) result = await hodlImportedWalletWithProgress(value, chain, count, account, addressStart, progress, purpose, coinType, hardening, branchStart, branchRange, derivationPlan);
       else {
+        if (hodlSeedMethod === "formosa" && !hodlFormosaReady(selected.formosa, hodlTargetWordCount)) throw hodlFormosaInputError(selected.formosa, hodlTargetWordCount);
         if (hodlSeedMethod === "numbers" && !selected.parsed?.complete) throw selected.parsed?.invalidEntries.length ? hodlError("Word numbers must be between {min} and {max}.", { min: selected.parsed.minimum, max: selected.parsed.maximum }) : selected.parsed?.extraEntries.length ? hodlError("Enter exactly {words} BIP39 word numbers.", { words: hodlTargetWordCount }) : selected.parsed?.checksumInvalid ? hodlError("The entered word numbers do not have a valid BIP39 checksum.") : hodlError("Enter exactly {words} BIP39 word numbers before deriving the wallet.", { words: hodlTargetWordCount });
         let validation = hodlValidateTargetMnemonic(value, hodlTargetWordCount);
         hodlThrowIfFailed(validation);
@@ -13447,10 +13689,10 @@ function hodlRestoreFormFields(state) {
     radio.checked = radio.value === (state.brainWalletOutput || "scalar");
   });
   hodlSyncBrainOutput();
-  ["dice", "hex", "bin", "base4", "base8", "base32", "base64", "seed", "seed-numbers", "key", "cards", "direct-cards"].forEach(id => {
+  ["dice", "hex", "bin", "base4", "base8", "base32", "base64", "seed", "seed-numbers", "seed-formosa", "key", "cards", "direct-cards"].forEach(id => {
     let el = document.getElementById(id);
     if (el) {
-      el.value = id === "dice" ? hodlStoredDiceValue(state.fields) : id === "key" ? privateKeys[restoredKeyKind] || "" : id === "direct-cards" ? state.fields.directCards || "" : id === "seed-numbers" ? state.fields.seedNumbers || "" : state.fields[id] || "";
+      el.value = id === "dice" ? hodlStoredDiceValue(state.fields) : id === "key" ? privateKeys[restoredKeyKind] || "" : id === "direct-cards" ? state.fields.directCards || "" : id === "seed-formosa" ? state.fields.seedFormosa || "" : id === "seed-numbers" ? state.fields.seedNumbers || "" : state.fields[id] || "";
       if (id === "key") el.dataset.privateKeyKind = restoredKeyKind;
       if (id === "dice") {
         el.dataset.previousValue = el.value;
@@ -13468,6 +13710,7 @@ function hodlSetMode(mode) {
   if (state) state.mode = mode;
   hodlKeyMode = mode;
   hodlSeedMethod = hodlNormalizeSeedMethod(state?.seedMethod);
+  hodlFormosaTheme = hodlNormalizeFormosaTheme(state?.formosaTheme);
   hodlSeedZeroIndexed = Boolean(state?.seedZeroIndexed);
   hodlEntropyFormat = hodlNormalizeEntropyFormat(state?.entropyFormat);
   hodlSyncKeyModeSelect();
@@ -13516,6 +13759,7 @@ function hodlCaptureKey() {
   state.diceMethod = hodlDiceMethod;
   state.cardMethod = hodlCardMethod;
   state.seedMethod = hodlSeedMethod;
+  state.formosaTheme = hodlFormosaTheme;
   state.seedZeroIndexed = Boolean(hodlSeedZeroIndexed);
   state.cardColemanSymbols = Boolean(hodlCardColemanSymbols);
   state.entropyFormat = hodlEntropyFormat;
@@ -13643,6 +13887,7 @@ function hodlRestoreKey() {
   hodlDiceMethod = state.diceMethod;
   hodlCardMethod = state.cardMethod === "direct" ? "direct" : "hashed";
   hodlSeedMethod = hodlNormalizeSeedMethod(state.seedMethod);
+  hodlFormosaTheme = hodlNormalizeFormosaTheme(state.formosaTheme);
   hodlSeedZeroIndexed = Boolean(state.seedZeroIndexed);
   hodlCardColemanSymbols = Boolean(state.cardColemanSymbols);
   hodlEntropyFormat = hodlNormalizeEntropyFormat(state.entropyFormat);
@@ -17653,7 +17898,7 @@ function hodlInitSecretFieldAutoClear() {
     // station's own Clear, then re-render the (empty) active one.
     hodlMsigs = hodlMsigs.map((state) => (state.isLab ? hodlNewMsigLabState() : hodlNewMsigState(state.name, state.id, state.number)));
     hodlRestoreMsig();
-    for (let id of ["dice", "hex", "bin", "base4", "base8", "base32", "base64", "seed", "seed-numbers", "key", "pass", "cards", "direct-cards"]) {
+    for (let id of ["dice", "hex", "bin", "base4", "base8", "base32", "base64", "seed", "seed-numbers", "seed-formosa", "key", "pass", "cards", "direct-cards"]) {
       let field = document.getElementById(id);
       if (field) {
         field.value = "";
